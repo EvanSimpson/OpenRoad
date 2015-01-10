@@ -1,0 +1,10 @@
+{
+  "name": "carbmw",
+  "version": "0.0.1",
+  "dependencies": {
+    "html5-boilerplate": "~4.3.0",
+    "bootstrap": "~3.3.1",
+    "d3": "~3.5.3",
+    "jquery": "~2.1.3"
+  }
+}
