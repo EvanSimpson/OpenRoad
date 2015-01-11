@@ -134,18 +134,31 @@ body:before {
 #go {
   display: block;
   margin: auto;
-  background-color: #A65638;
-  border-radius: 50%;
-  width: 200px;
+  background-color: rgba(255,255,255,0);
+  background-image: url("/images/road.svg");
+  background-repeat: no-repeat;
+  background-size: 100%;
+  background-position: center;
+  border: none;
+  width: 350px;
   height: 200px;
-  box-shadow: 2px 2px 2px #000000;
-  /* width and height can be anything, as long as they're equal */
+  margin-top: 20px;
+  font-weight: 200;
+  font-size: 24px;
 }
+
+/*#trapezoid {
+    border-bottom: 100px solid red;
+    border-left: 50px solid transparent;
+    border-right: 50px solid transparent;
+    height: 0;
+    width: 100px;
+}*/
 
 input[type=range]{
   margin: auto;
   margin-top: 50px;
-  margin-bottom: 50px;
+  margin-bottom: 10px;
   -webkit-appearance: none;
   border-radius: 12px;
   background: #bcbcb9;
@@ -168,17 +181,15 @@ input[type=range]::-webkit-slider-thumb {
   border-radius: 25%;
   background: #8d9fa6;
   margin-top: -5px;
-  /*margin-left: 5px;*/
-  /*margin-right: 5px;*/
 }
 
 input[type=range]#time::-webkit-slider-runnable-track {
-  background: url("/images/clock.svg") no-repeat center;
+  /*background: url("/images/clock.svg") no-repeat center;*/
   background-size: 50px 50px;
 }
 
 input[type=range]#adventure::-webkit-slider-runnable-track {
-    background: url("/images/compass.svg") no-repeat center;
+    /*background: url("/images/compass.svg") no-repeat center;*/
     background-size: 50px 50px;
 }
 
@@ -205,16 +216,26 @@ input[type=range]:focus::-webkit-slider-runnable-track {
   margin: auto;
   display: block;
   margin-bottom: -25px;
-  margin-top: 25px;
+  margin-top: 10px;
+}
+
+.slidurr {
+    margin-bottom: 10px;
 }
 
 .slider_holder {
     margin:auto;
     display: block;
     background-color: rgba(14, 14, 14, 0.6);
-    padding: 10px;
+    padding: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 25px;
 }
 
+.title_thing {
+    margin-bottom: 10px;
+}
 
 
 
