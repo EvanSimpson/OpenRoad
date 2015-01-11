@@ -93,7 +93,7 @@
     <div class="col-sm-8">
 
       {{#if user}}
-      <div>
+      <div id="go-page">
         <form id="go-form"  action="/go" method="post">
           <input id="vehicle-input" type="hidden" name="Vehicle" value="null">
           <div class='slider_holder'>
@@ -108,7 +108,7 @@
             </div>
             <input class="slidurr" type="range" name="time" id="time" value="500" min="0" max="1000">
           </div>
-          <button id="go" type="submit"></button>
+          <button id="go" type="submit">Show me<br>the open road</button>
         </form>
         <div class="bottom-nav">
         </div>
@@ -136,7 +136,27 @@
             });
           });
         </script>
+    </div>
+      <div id="load-page">
       </div>
+      <div id="end-page">
+      </div>
+      <script>
+        var texts = [
+        '',
+        ''
+        ];
+
+        var state = "go-page";
+        function changeSate(newState) {
+            var from_state = "#" + state;
+            var to_state = "#" + newState;
+            $(from_state).fadeToggle(200);
+            $(to_state).fadeToggle(300);
+            state = newState;
+        }
+
+      </script>
       {{else}}
         <button class="btn btn-primary btn-lg" id="login" type="button" onClick="login()">Sign in to BMW</button>
       {{/if}}
