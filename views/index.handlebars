@@ -4,7 +4,7 @@
   {{#if user}}
     user = { id: '{{user.id}}' };
   {{/if}}
-  (function() {
+  
     var App, BMWClient, buildMap, config, bmw_client;
     
     BMWClient = this.BMWClient;
@@ -19,33 +19,10 @@
     };
     
     bmw_client = new BMWClient(config);
-    
-    App = bmw_client.model('App');
-    
-    $(function() {
-      if (config.application !== '29667c32-c8a3-43e2-a190-a8d9d8077c2e') {
-        return;
-      }
-      if (config.redirect_uri !== 'http://localhost:3000/callback') {
-        return;
-      }
-      bmw_client.token(function(error, result) {
-        if (error && !user) {
-          console.log("redirecting to login.");
-          return bmw_client.authorize(config.redirect_uri);
-        } else {
-          console.log('has user');
-          // getVehicle(bmw_client, "WBY1Z4C58EV273611", function(err, vehicle){
-          //   console.log('vehicle returned', vehicle);
-          //   $("#vehicle-input").attr("value", JSON.stringify(vehicle[0]));
-          // });
-        }
-      });
-      return;
-    });
-    
-    
-  }).call(this);
+  
+  function login(){
+    bmw_client.authorize(config.redirect_uri);
+  };
   
   function getVehicleList(bc, page, next){
     if (typeof page === 'function'){
@@ -83,25 +60,49 @@
   
 </script>
 
-<div>
-  {{#if user}}
-  Logged in
-  {{else}}
-  Logged out
-  {{/if}}
-</div>
+<h1>Open Road</h1>
 <div class="container-fluid">
   <div class="row">
     <div class="col-sm-8">
+      
+      {{#if user}}
       <div>
-        <form  method="get">
-          <input id="vehicle-input" type="hidden" name="Vehicle" >
+        <form id="go-form"  action="/go" method="post">
+          <input id="vehicle-input" type="hidden" name="Vehicle" value="null">
           <input type="range" name="time" id="time" value="3" min="0" max="10">
-          <input type="range" name="money" id="money" value="1" min="0" max="4">
           <input type="range" name="adventure" id="adventure" value="5" min="0" max="10">
-          <button id="go" type="submit" formmethod="post" formaction="/go">Show Me The Open Road</button>
+          <button id="go" type="submit">Show Me The Open Road</button>
         </form>
+        <div class="bottom-nav">
+        </div>
+        <script type='text/javascript'>
+          /* attach a submit handler to the form */
+          $("#go-form").submit(function(event) {
+            
+            /* stop form from submitting normally */
+            event.preventDefault();
+            
+            /* get some values from elements on the page: */
+            var $form = $( this ),
+            url = $form.attr( 'action' );
+            
+            /* Send the data using post */
+            var posting = $.post( url, { 
+              time: $('#time').val(), 
+              money: $('#money').val(),
+              adventure: $('#adventure').val()
+              } );
+            
+            /* Alerts the results */
+            posting.done(function( data ) {
+              
+            });
+          });
+        </script>
       </div>
+      {{else}}
+        <button class="btn btn-primary btn-lg" id="login" type="button" onClick="login()">Sign in to BMW</button>
+      {{/if}}
     </div>
   </div>
   

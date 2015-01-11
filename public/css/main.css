@@ -101,6 +101,16 @@ textarea {
 html, body {
   width: 100%;
   height: 100%;
+  color: #FFFFFF;
+}
+
+h1 {
+  font-weight: 200;
+  font-size: 48px;
+  margin: auto;
+  display: block;
+  text-align: center;
+  margin-top: 45px;
 }
 
 body {
@@ -109,7 +119,7 @@ body {
   background: url("/images/asphalt.jpg") center center no-repeat;
   background-size: cover;
 }
-/*
+
 body:before {
   content: " ";
   width: 100%;
@@ -118,13 +128,13 @@ body:before {
   z-index: -1;
   top: 0;
   left: 0;
-  background: -webkit-linear-gradient(rgba(0,0,0,0.7) 0%,rgba(0,0,0,0.1) 100%);
-}*/
+  background: -webkit-linear-gradient(rgba(14,14,14,0.7) 0%,rgba(14,14,14,0.1) 100%);
+}
 
 #go {
   display: block;
   margin: auto;
-  background-color: #009933;
+  background-color: #A65638;
   border-radius: 50%;
   width: 200px;
   height: 200px;
@@ -141,7 +151,7 @@ input[type=range]{
 
 input[type=range]::-webkit-slider-runnable-track {
   width: 300px;
-  height: 25px;
+  height: 50px;
   background: #ffffff;
   border: none;
   border-radius: 30px;
@@ -153,8 +163,13 @@ input[type=range]::-webkit-slider-thumb {
   height: 32px;
   width: 32px;
   border-radius: 50%;
-  background: green;
+  background: #A65638;
   margin-top: -1px;
+}
+
+input[type=range]#time::-webkit-slider-runnable-track {
+  background: url("/images/clock.svg") no-repeat center;
+  background-size: 50px 50px;
 }
 
 input[type=range]:focus {
@@ -166,6 +181,15 @@ input[type=range]:focus::-webkit-slider-runnable-track {
 }
 
 
+#login {
+  margin:auto;
+  display: block;
+  margin-top: 150px;
+}
+
+#login:hover {
+  background-color: #01496D;
+}
 
 
 

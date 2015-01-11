@@ -2,8 +2,8 @@ var express = require('express')
   , request = require('request')
   , Promise = require('Promise')
   , soap = require('soap')
-  , xml = require('xml2json')
-  , sprint = require('sprintf-js').sprintf
+  , xml2json = require('xml2json')
+  , sprintf = require('sprintf-js').sprintf
   , _ = require('underscore');
 
 var soapUrl = 'https://developer.chargepoint.com/UI/downloads/cp_api_4.1.wsdl '
@@ -14,36 +14,40 @@ var hereId = "6Swd65znKjCshDsVsfFz";
 var hereSecret = process.env.HERE_SECRET;
   
 var xmlInput =
-"  <soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:web=\"http://litwinconsulting.com/webservices/\">\n" +
-"	<soap:Header>\n" +
-"		<wsse:Security xmlns:wsse='http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd' soap:mustUnderstand='1'>\n" +
-"			<wsse:UsernameToken xmlns:wsu='http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd' wsu:Id='UsernameToken-261'>\n" +
-"				<wsse:Username>" + soapUser + "</wsse:Username>\n" +
-"				<wsse:Password Type='http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText'>" + soapPass + "</wsse:Password>\n" +
-"			</wsse:UsernameToken>\n" +
-"		</wsse:Security>\n" +
-"   </soap:Header>\n" +
-"   <soap:Body>\n" +
-"		<ns2:getPublicStations xmlns:ns2='http://www.example.org/coulombservices/'>\n" +
-"			<searchQuery>\n" +
-"				<Proximity>%d</Proximity>\n" +
-"				<proximityUnit>M</proximityUnit>\n" +
-"				<Geo>\n" +
-"					<Lat>%f</Lat>\n" +
-"					<Long>%f</Long>\n" +
-"				</Geo>\n" +
-"			</searchQuery>\n" +
-"		</ns2:getPublicStations>\n" +
-"   </soap:Body>\n" +
-"  </soap:Envelope>\n";
+  "  <soap:Envelope xmlns:soap=\"http://schemas.xmlsoap.org/soap/envelope/\" xmlns:web=\"http://litwinconsulting.com/webservices/\">\n" +
+  "	<soap:Header>\n" +
+  "		<wsse:Security xmlns:wsse='http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd' soap:mustUnderstand='1'>\n" +
+  "			<wsse:UsernameToken xmlns:wsu='http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd' wsu:Id='UsernameToken-261'>\n" +
+  "				<wsse:Username>" + soapUser + "</wsse:Username>\n" +
+  "				<wsse:Password Type='http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-username-token-profile-1.0#PasswordText'>" + soapPass + "</wsse:Password>\n" +
+  "			</wsse:UsernameToken>\n" +
+  "		</wsse:Security>\n" +
+  "   </soap:Header>\n" +
+  "   <soap:Body>\n" +
+  "		<ns2:getPublicStations xmlns:ns2='http://www.example.org/coulombservices/'>\n" +
+  "			<searchQuery>\n" +
+  "				<Proximity>%d</Proximity>\n" +
+  "				<proximityUnit>M</proximityUnit>\n" +
+  "				<Geo>\n" +
+  "					<Lat>%f</Lat>\n" +
+  "					<Long>%f</Long>\n" +
+  "				</Geo>\n" +
+  "			</searchQuery>\n" +
+  "		</ns2:getPublicStations>\n" +
+  "   </soap:Body>\n" +
+  "  </soap:Envelope>\n";
 
 var BMW = require('../bmw.js');
 var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res) {
-  var user = req.session.user;
-
+  var user;
+  if (req.session.user){
+    user = req.session.user;
+  } else if (req.session.cookie.user){
+    user = {id: req.session.cookie.user}
+  }
   res.render('index', { title: 'Express', user: user });
 });
 
@@ -57,6 +61,7 @@ router.post('/login', function(req, res){
     id: req.body["hash"].split('=')[1]
   };
   req.session.user = user;
+  req.session.cookie.user = user.id;
   res.redirect('/');
 });
 
@@ -66,10 +71,12 @@ router.get('/callback', function(req, res){
 });
 
 router.post('/go', function(req, res){
-  var vehicle = JSON.parse(req.body.Vehicle);
+  // var vehicle = JSON.parse(req.body.Vehicle);
   var vin = "WBY1Z4C55EV273078";
-  roll(vin);
-  res.render('enroute');
+  roll(vin, function(best, all){
+    console.log('best POIs', best);
+  });
+  res.send('Got it');
 });
 
 function roll(vin, next){
@@ -93,14 +100,15 @@ function roll(vin, next){
     });
   });
   batPromise.then(function onFullfill(){
-    soapItUp(location.lat, location.lon, battery.remainingRangeMi);
+    console.log('getting charging stations');
+    chargeStationsFromLatLongRange(location.lat, location.lon, battery.remainingRangeMi, next);
   },function onReject(){});
   
   
 }
 
-function soapItUp(Lat, Long, range){
-  var xml = sprintf(xmlInput, range, Lat, Long);
+function chargeStationsFromLatLongRange(Lat, Long, range, next){
+  var xml = sprintf(xmlInput, Math.round(range), Lat, Long);
   var headers = {
     "Content-Length": xml.length,
     "Content-Type": "text/xml; charset=utf-8",
@@ -109,8 +117,8 @@ function soapItUp(Lat, Long, range){
   request.post({
     url:  "https://webservices.chargepoint.com/webservices/chargepoint/services/4.1", 
     headers: headers,
-    body: xmlInput}, function(error, response, body){
-      var json = xml.toJson(body);
+    body: xml}, function(error, response, body){
+      var json = xml2json.toJson(body);
       var stations = JSON.parse(json)["soapenv:Envelope"]["soapenv:Body"]["ns1:getPublicStationsResponse"]["stationData"];
       var viable = _.filter(stations, function(station){
         if (station.Port.length){
@@ -125,7 +133,9 @@ function soapItUp(Lat, Long, range){
           return distance > 16;
         }
       });
-      getPOI(viable);
+      console.log('viable stations found');
+      // return herePoiFromStations(viable, next);
+      next && next({}, {});
     });
 }
 
@@ -147,14 +157,22 @@ function deg2rad(deg) {
   return deg * (Math.PI/180)
 }
 
-function getPOI(stations){
-  var POI = [];
+function herePoiFromStations(stations, next){
+  var poi = {
+    best: {},
+    all: {}
+  };
+  var finished = _.after(stations.length, function(){
+    next && next(poi.best, poi.all);
+  });
+
   for(var i=0; i<stations.length; i++){
-    if (stations[i].Port.length){
-      stations[i].Port = stations[i].Port[0];
+    var station = stations[i]
+    if (station.Port.length){
+      station.Port = station.Port[0];
     }
     var params = {
-      at: stations[i].Port.Geo.Lat.toString() + ',' + stations[i].Port.Geo.Long.toString(),
+      at: station.Port.Geo.Lat.toString() + ',' + station.Port.Geo.Long.toString(),
       cat: "natural-geographical",
       accept: "application/json",
       app_id: hereId,
@@ -163,17 +181,29 @@ function getPOI(stations){
     request.get({
       url: "http://places.demo.api.here.com/places/v1/discover/explore",
       qs: params
-    }, function(err, response, body){
-      var results = _.filter(JSON.parse(body).results.items, function(place){
+    }, function(k, err, response, body){
+      console.log(body);
+      var allResults = JSON.parse(body).results.items || {};
+      var results = _.filter(allResults, function(place){
         if (place.averageRating < 4.5){
           return false;
         } else {
           return place.distance < 2000;
         }
       });
-      POI.push(results);
+      if (results.length) {
+        poi.best[stations[k].stationID] = {
+          station: stations[k],
+          poi: results
+        };
+      };
+      poi.all[stations[k].stationID] = {
+        station: stations[k],
+        poi: allResults
+      };
       results.length && console.log(results);
-    });
+      finished();
+    }.bind(this, i));
   };
 }
 
