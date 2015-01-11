@@ -102,11 +102,17 @@ router.post('/go', function(req, res){
   db.users.findOne({bmw_id: user.bmw_id}, function(err, doc){
     if (!!doc){
       roll(options, doc.vin, function(best, all){
-        var bestStation = best[Object.keys(best)[0]]['station'];
-        var bestPoi = 
-        console.log('best station', bestStation);
-        
-        res.end('success');
+        var bestStation = best[Object.keys(best)[0]];
+        request({url:'http://api.hackthedrive.com/vehicles/'+doc.vin+'/navigation/', 
+          body: {
+            "label": "It's a surprise!",
+            "lat": best.Port.Geo.Lat || best.Port[0].Geo.Lat,
+            "lon": best.Port.Geo.Long || best.Port[0].Geo.Long
+          }
+        }, function(error, response, body) {
+          
+          res.end('success');
+        }
       });
     } else {
     }
@@ -177,8 +183,7 @@ function chargeStationsFromLatLongRange(options, Lat, Long, range, next){
       // return herePoiFromStations(options, viable, next);
       next && next(
         _.map(viable, function(value, key, list){
-          var ret = {};
-          ret[value.stationID] = {station: value, poi:{}};
+          var ret = {station: value, poi:{}};
         return ret;
         }), {});
     });
