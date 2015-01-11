@@ -132,24 +132,19 @@ body:before {
 }
 
 #go {
-  /*display: block;
-  margin: auto;
-  background-color: #A65638;
-  border-radius: 50px;
-  width: 70%;
-  height: 200px;
-  box-shadow: 2px 20px 20px #000000;*/
-  border-bottom: 200px solid #01496d;
-  border-left: 100px solid rgba(255,255,255,0);
-  border-right: 100px solid transparent;
-  height: 0;
-  width: 70%;
-  margin: auto;
   display: block;
-  margin-top: 20px;
+  margin: auto;
   background-color: rgba(255,255,255,0);
-  border-top:0px;
-  border-radius: 10%;
+  background-image: url("/images/road.svg");
+  background-repeat: no-repeat;
+  background-size: 100%;
+  background-position: center;
+  border: none;
+  width: 350px;
+  height: 200px;
+  margin-top: 20px;
+  font-weight: 200;
+  font-size: 24px;
 }
 
 /*#trapezoid {
