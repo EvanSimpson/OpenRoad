@@ -1,119 +1,4 @@
 <script type="text/javascript" charset="utf-8" src="js/BMWClient.js"></script>
-<script>
-  var user;
-  {{#if user}}
-    user = {
-      bmw_id: '{{user.bmw_id}}',
-      access_token: '{{user.access_token}}'
-      };
-  {{/if}}
-
-    var App, BMWClient, buildMap, config, bmw_client;
-
-    BMWClient = this.BMWClient;
-
-    config = {
-      application: '29667c32-c8a3-43e2-a190-a8d9d8077c2e',
-      redirect_uri: 'http://localhost:3000/callback',
-      hostname: 'data.api.hackthedrive.com',
-      version: 'v1',
-      port: '80',
-      scheme: 'http'
-    };
-
-    bmw_client = new BMWClient(config);
-    fakeAccessToken();
-
-  function fakeAccessToken(){
-    if(user){
-      document.location.hash = 'access_token='+user.access_token;
-      bmw_client.token(function(err, result){
-        if (!err){
-
-        } else {
-          console.log(err);
-        }
-      });
-    }
-  }
-
-  function login(){
-    bmw_client.authorize(config.redirect_uri);
-  };
-
-  function getVehicleList(bc, page, next){
-    if (typeof page === 'function'){
-      next = page;
-      page = 0;
-    }
-    page = page || 0;
-    var Vehicle = bc.model("Vehicle");
-    bc.get(Vehicle, {
-      limit: 10,
-      offset: page*10
-    }, function apiResponse(err, result){
-      next && next(err, bc.getResults(Vehicle, result));
-    });
-  };
-
-  function getVehicle(bc, vin, next){
-    var Vehicle = bc.model("Vehicle");
-    console.log(Vehicle);
-    Vehicle.VIN = vin;
-    bc.get(Vehicle, {}, function apiResponse(err, result){
-      next && next(err, bc.getResults(Vehicle, result));
-    });
-  }
-
-  function showVehicles(bc){
-    var list = $(".vehicle-list")
-    getVehicleList(bc, 0, function(err, vehicles){
-      for(var i=0; i<vehicles.length; i++){
-        console.log(vehicles[i]);
-        list.append("<li>"+vehicles[i].VIN+"</li>");
-      }
-    });
-  }
-
-  var texts = [
-  '',
-  ''
-  ];
-
-  var state = "go-page";
-  function changeSate(newState) {
-      var from_state = "#" + state;
-      var to_state = "#" + newState;
-      $(from_state).fadeToggle(200);
-      $(to_state).fadeToggle(300);
-      state = newState;
-  }
-
-
-  /* attach a submit handler to the form */
-  $("#go-form").submit(function(event) {
-
-      /* stop form from submitting normally */
-      event.preventDefault();
-
-      /* get some values from elements on the page: */
-      var $form = $( this ),
-      url = $form.attr( 'action' );
-
-      /* Send the data using post */
-      var posting = $.post( url, {
-          time: $('#time').val(),
-          money: $('#money').val(),
-          adventure: $('#adventure').val()
-      } );
-
-      /* Alerts the results */
-      posting.done(function( data ) {
-          changeState("load-page");
-      });
-  });
-
-</script>
 
 <h1 class="title_thing">Open Road</h1>
 <div class="container-fluid">
@@ -122,8 +7,7 @@
 
       {{#if user}}
       <div id="go-page">
-        <form id="go-form"  action="/go" method="post">
-          <input id="vehicle-input" type="hidden" name="Vehicle" value="null">
+        <form id="go-form" >
           <div class='slider_holder'>
             <div>
               <img class="image", id='compass_image', src="./images/compass.svg", height='75px'></img>
@@ -136,7 +20,7 @@
             </div>
             <input class="slidurr" type="range" name="time" id="time" value="500" min="0" max="1000">
           </div>
-          <button id="go" type="submit">Show me<br>the open road</button>
+          <button id="go"></button>
         </form>
         <div class="bottom-nav">
         </div>
@@ -144,15 +28,135 @@
 
         </script>
     </div>
-      <div id="load-page">
+      <div id="load-page" style="display: none;">
+        <p id="text-box">
+          Don't forget the sunscreen!
+        </p>
       </div>
-      <div id="end-page">
+      <div id="end-page"  style="display: none;">
       </div>
 
       {{else}}
-        <button class="btn btn-primary btn-lg" id="login" type="button" onClick="login()">Sign in to BMW</button>
+        <button class="btn btn-primary btn-lg" id="login" type="button" onClick="login()">Sign in with BMW</button>
       {{/if}}
     </div>
   </div>
 
 </div>
+
+<script>
+var user;
+{{#if user}}
+user = {
+  bmw_id: '{{user.bmw_id}}',
+  access_token: '{{user.access_token}}'
+};
+{{/if}}
+
+var App, BMWClient, buildMap, config, bmw_client;
+
+BMWClient = this.BMWClient;
+
+config = {
+  application: '29667c32-c8a3-43e2-a190-a8d9d8077c2e',
+  redirect_uri: 'http://localhost:3000/callback',
+  hostname: 'data.api.hackthedrive.com',
+  version: 'v1',
+  port: '80',
+  scheme: 'http'
+};
+
+bmw_client = new BMWClient(config);
+fakeAccessToken();
+
+function fakeAccessToken(){
+  if(user){
+    document.location.hash = 'access_token='+user.access_token;
+    bmw_client.token(function(err, result){
+      if (!err){
+        
+      } else {
+        console.log(err);
+      }
+    });
+  }
+}
+
+function login(){
+  bmw_client.authorize(config.redirect_uri);
+};
+
+function getVehicleList(bc, page, next){
+  if (typeof page === 'function'){
+    next = page;
+    page = 0;
+  }
+  page = page || 0;
+  var Vehicle = bc.model("Vehicle");
+  bc.get(Vehicle, {
+    limit: 10,
+    offset: page*10
+  }, function apiResponse(err, result){
+    next && next(err, bc.getResults(Vehicle, result));
+  });
+};
+
+function getVehicle(bc, vin, next){
+  var Vehicle = bc.model("Vehicle");
+  console.log(Vehicle);
+  Vehicle.VIN = vin;
+  bc.get(Vehicle, {}, function apiResponse(err, result){
+    next && next(err, bc.getResults(Vehicle, result));
+  });
+}
+
+function showVehicles(bc){
+  var list = $(".vehicle-list")
+  getVehicleList(bc, 0, function(err, vehicles){
+    for(var i=0; i<vehicles.length; i++){
+      console.log(vehicles[i]);
+      list.append("<li>"+vehicles[i].VIN+"</li>");
+    }
+  });
+}
+
+var texts = [
+'',
+''
+];
+
+var state = "go-page";
+
+
+/* attach a submit handler to the form */
+$("#go").click(function(event) {
+  console.log('clicked!');
+  /* stop form from submitting normally */
+  event.preventDefault();
+  
+  var xhr = new XMLHttpRequest();
+  
+  xhr.open("POST", "/go", true);
+  xhr.send({
+    time: $('#time').val(),
+    adventure: $('#adventure').val(),
+    user: user.bmw_id
+  });
+  
+  changeState("load-page");
+});
+
+function changeState(newState) {
+  var from_state = "#" + state;
+  var to_state = "#" + newState;
+  $(from_state).fadeToggle(200);
+  $(to_state).fadeToggle(300);
+  state = newState;
+}
+
+function cycleText(){
+  
+}
+
+
+</script>

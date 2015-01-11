@@ -52,7 +52,7 @@ router.get('/', function(req, res) {
     user = req.session.cookie.user;
   }
   console.log(user);
-  res.render('index', { title: 'Express', user: user });
+  res.render('index', { title: 'Open Road', user: user });
 });
 
 router.get('/auth', function(req, res){
@@ -68,7 +68,7 @@ router.post('/login', function(req, res){
   req.session.user = user;
   req.session.cookie.user = user;
   res.redirect('/');
-  db.users.findOne({bmw_id: user.userId}, function(err, doc){
+  db.users.findOne({bmw_id: user.bmw_id}, function(err, doc){
     if (!!doc){
       console.log('existing user', doc);
       if (user.access_token != doc.access_token){
@@ -80,7 +80,7 @@ router.post('/login', function(req, res){
       db.users.insert({
         bmw_id: user.bmw_id,
         access_token: user.access_token,
-        vin: req.body.vin
+        vin: 'WBY1Z4C55EV273078'
       });
     }
   });
@@ -96,7 +96,6 @@ router.post('/go', function(req, res){
   var options = {
     time: req.body.time,
     adventure: req.body.adventure,
-    money: req.body.money,
     user: user.bmw_id
   };
   console.log('bmw id', user);
@@ -104,10 +103,10 @@ router.post('/go', function(req, res){
     if (!!doc){
       roll(options, doc.vin, function(best, all){
         console.log('best POIs', best);
+        
+        res.end('success');
       });
-      res.send('Got it');
     } else {
-      res.send('error');
     }
   });
   
@@ -122,6 +121,8 @@ function roll(options, vin, next){
         console.log('location returned')
         location = JSON.parse(body);
         resolve();
+      } else {
+        console.log(error, response.statusCode);
       }
     });
   });
@@ -131,6 +132,8 @@ function roll(options, vin, next){
         console.log('battery returned')
         battery = JSON.parse(body);
         resolve(locPromise);
+      } else {
+        console.log(error, response.statusCode);
       }
     });
   });
