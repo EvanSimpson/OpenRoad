@@ -2,9 +2,9 @@
 <script>
   var user;
   {{#if user}}
-    user = { 
+    user = {
       bmw_id: '{{user.bmw_id}}',
-      access_token: '{{user.access_token}}' 
+      access_token: '{{user.access_token}}'
       };
   {{/if}}
 
@@ -29,7 +29,7 @@
       document.location.hash = 'access_token='+user.access_token;
       bmw_client.token(function(err, result){
         if (!err){
-          
+
         } else {
           console.log(err);
         }
@@ -75,6 +75,44 @@
     });
   }
 
+  var texts = [
+  '',
+  ''
+  ];
+
+  var state = "go-page";
+  function changeSate(newState) {
+      var from_state = "#" + state;
+      var to_state = "#" + newState;
+      $(from_state).fadeToggle(200);
+      $(to_state).fadeToggle(300);
+      state = newState;
+  }
+
+
+  /* attach a submit handler to the form */
+  $("#go-form").submit(function(event) {
+
+      /* stop form from submitting normally */
+      event.preventDefault();
+
+      /* get some values from elements on the page: */
+      var $form = $( this ),
+      url = $form.attr( 'action' );
+
+      /* Send the data using post */
+      var posting = $.post( url, {
+          time: $('#time').val(),
+          money: $('#money').val(),
+          adventure: $('#adventure').val()
+      } );
+
+      /* Alerts the results */
+      posting.done(function( data ) {
+          changeState("load-page");
+      });
+  });
+
 </script>
 
 <h1 class="title_thing">Open Road</h1>
@@ -103,50 +141,14 @@
         <div class="bottom-nav">
         </div>
         <script type='text/javascript'>
-          /* attach a submit handler to the form */
-          $("#go-form").submit(function(event) {
 
-            /* stop form from submitting normally */
-            event.preventDefault();
-
-            /* get some values from elements on the page: */
-            var $form = $( this ),
-            url = $form.attr( 'action' );
-
-            /* Send the data using post */
-            var posting = $.post( url, {
-              time: $('#time').val(),
-              money: $('#money').val(),
-              adventure: $('#adventure').val()
-              } );
-
-            /* Alerts the results */
-            posting.done(function( data ) {
-
-            });
-          });
         </script>
     </div>
       <div id="load-page">
       </div>
       <div id="end-page">
       </div>
-      <script>
-        var texts = [
-        '',
-        ''
-        ];
 
-        var state = "go-page";
-        function changeSate(newState) {
-            var from_state = "#" + state;
-            var to_state = "#" + newState;
-            $(from_state).fadeToggle(200);
-            $(to_state).fadeToggle(300);
-            state = newState;
-        }
-
-      </script>
       {{else}}
         <button class="btn btn-primary btn-lg" id="login" type="button" onClick="login()">Sign in to BMW</button>
       {{/if}}
