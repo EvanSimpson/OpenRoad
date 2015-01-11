@@ -145,7 +145,7 @@ body:before {
 input[type=range]{
   margin: auto;
   margin-top: 50px;
-  margin-bottom: 50px;
+  margin-bottom: 10px;
   -webkit-appearance: none;
   border-radius: 12px;
   background: #bcbcb9;
@@ -173,12 +173,12 @@ input[type=range]::-webkit-slider-thumb {
 }
 
 input[type=range]#time::-webkit-slider-runnable-track {
-  background: url("/images/clock.svg") no-repeat center;
+  /*background: url("/images/clock.svg") no-repeat center;*/
   background-size: 50px 50px;
 }
 
 input[type=range]#adventure::-webkit-slider-runnable-track {
-    background: url("/images/compass.svg") no-repeat center;
+    /*background: url("/images/compass.svg") no-repeat center;*/
     background-size: 50px 50px;
 }
 
@@ -205,16 +205,26 @@ input[type=range]:focus::-webkit-slider-runnable-track {
   margin: auto;
   display: block;
   margin-bottom: -25px;
-  margin-top: 25px;
+  margin-top: 10px;
+}
+
+.slidurr {
+    margin-bottom: 10px;
 }
 
 .slider_holder {
     margin:auto;
     display: block;
     background-color: rgba(14, 14, 14, 0.6);
-    padding: 10px;
+    padding: 20px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border-radius: 25px;
 }
 
+.title_thing {
+    margin-bottom: 10px;
+}
 
 
 
