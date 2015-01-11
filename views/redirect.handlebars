@@ -1,5 +1,40 @@
+<script type="text/javascript" charset="utf-8" src="js/BMWClient.js"></script>
 <script>
-  $('<form action="/login" method="POST">' + 
-  '<input type="hidden" name="hash" value="' + document.location.hash.match(/access_token=([0-9a-f-]{36})/)[1] + '">' +
-  '</form>').submit();
+  var App, BMWClient, buildMap, config, bmw_client;
+
+  BMWClient = this.BMWClient;
+
+  config = {
+    application: '29667c32-c8a3-43e2-a190-a8d9d8077c2e',
+    redirect_uri: 'http://localhost:3000/callback',
+    hostname: 'data.api.hackthedrive.com',
+    version: 'v1',
+    port: '80',
+    scheme: 'http'
+  };
+
+  bmw_client = new BMWClient(config);
+  bmw_client.token(function(err, result){
+    var userId = result.UserId;
+    console.log(result);
+    console.log(bmw_client.auth_token);
+    if (!err){
+      var Vehicle = bmw_client.model("Vehicle"); // Gets a Vehicle model schema.
+      bmw_client.get(Vehicle, {}, function(error, result) {
+        if (error) {
+          console.log(error); // Some error occured.
+        } else {
+          var Vehicles = bmw_client.getResults(Vehicle, result);  // Helper function to get the results.
+          
+          $('<form action="/login" method="POST">' + 
+          '<input type="hidden" name ="vin" value="' + Vehicles[0].VIN + '">' +
+          '<input type="hidden" name="user" value="' + userId + '">' +
+          '<input type="hidden" name="token" value="' + document.location.hash.match(/access_token=([0-9a-f-]{36})/)[1] + '">' +
+          '</form>').submit();
+        }
+      });
+    } else {
+      console.log(err);
+    }
+  });
 </script>

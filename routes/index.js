@@ -49,7 +49,7 @@ router.get('/', function(req, res) {
   if (req.session.user){
     user = req.session.user;
   } else if (req.session.cookie.user){
-    user = {access_token: req.session.cookie.user}
+    user = req.session.cookie.user;
   }
   console.log(user);
   res.render('index', { title: 'Express', user: user });
@@ -62,21 +62,25 @@ router.get('/auth', function(req, res){
 router.post('/login', function(req, res){
   console.log(req.body);
   var user = {
-    access_token: req.body["hash"]
+    bmw_id: req.body["user"],
+    access_token: req.body["token"]
   };
   req.session.user = user;
-  req.session.cookie.user = user.access_token;
+  req.session.cookie.user = user;
   res.redirect('/');
-  db.users.findOne({access_token: user.access_token}, function(err, doc){
+  db.users.findOne({bmw_id: user.userId}, function(err, doc){
     if (!!doc){
+      console.log('existing user', doc);
       if (user.access_token != doc.access_token){
         doc.access_token = user.access_token;
         db.users.save(doc);
       }
     } else {
-      
+      console.log('new user');
       db.users.insert({
-        access_token: user.access_token
+        bmw_id: user.bmw_id,
+        access_token: user.access_token,
+        vin: req.body.vin
       });
     }
   });
@@ -87,29 +91,16 @@ router.get('/callback', function(req, res){
   res.render('redirect');
 });
 
-router.post('/vehicle', function(req, res){
-  console.log(req.body);
-  var resp = req.body;
-  res.send('good to go');
-  db.users.findOne({access_token: resp.user}, function(err, doc){
-    if (!!doc) {
-      if (resp.vehicle[0].VIN != doc.vin) {
-        doc.vin = resp.vehicle[0].VIN;
-        db.users.save(doc);
-      }
-    }
-  });
-});
-
 router.post('/go', function(req, res){
   var user = req.session.user;
   var options = {
     time: req.body.time,
     adventure: req.body.adventure,
     money: req.body.money,
-    user: user.access_token
+    user: user.bmw_id
   };
-  db.users.find({access_token: user.access_token}, function(err, doc){
+  console.log('bmw id', user);
+  db.users.findOne({bmw_id: user.bmw_id}, function(err, doc){
     if (!!doc){
       roll(options, doc.vin, function(best, all){
         console.log('best POIs', best);
@@ -124,6 +115,7 @@ router.post('/go', function(req, res){
 
 function roll(options, vin, next){
   var location, battery;
+  console.log(vin);
   var locPromise = new Promise(function(resolve, reject){
     request('http://api.hackthedrive.com/vehicles/'+vin+'/location/', function (error, response, body) {
       if (!error && response.statusCode == 200) {
