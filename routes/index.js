@@ -4,7 +4,10 @@ var express = require('express')
   , soap = require('soap')
   , xml2json = require('xml2json')
   , sprintf = require('sprintf-js').sprintf
+  , mongojs = require('mongojs')
   , _ = require('underscore');
+
+var db = mongojs(process.env.MONGOLAB_URI || 'open_road', ['users']);
 
 var soapUrl = 'https://developer.chargepoint.com/UI/downloads/cp_api_4.1.wsdl '
   , soapUser = 'b207195d0b1684270db5aeae7970408c5179ce9f5a4dc1366937247'
@@ -46,8 +49,9 @@ router.get('/', function(req, res) {
   if (req.session.user){
     user = req.session.user;
   } else if (req.session.cookie.user){
-    user = {id: req.session.cookie.user}
+    user = {access_token: req.session.cookie.user}
   }
+  console.log(user);
   res.render('index', { title: 'Express', user: user });
 });
 
@@ -58,11 +62,24 @@ router.get('/auth', function(req, res){
 router.post('/login', function(req, res){
   console.log(req.body);
   var user = {
-    id: req.body["hash"].split('=')[1]
+    access_token: req.body["hash"]
   };
   req.session.user = user;
-  req.session.cookie.user = user.id;
+  req.session.cookie.user = user.access_token;
   res.redirect('/');
+  db.users.findOne({access_token: user.access_token}, function(err, doc){
+    if (!!doc){
+      if (user.access_token != doc.access_token){
+        doc.access_token = user.access_token;
+        db.users.save(doc);
+      }
+    } else {
+      
+      db.users.insert({
+        access_token: user.access_token
+      });
+    }
+  });
 });
 
 router.get('/callback', function(req, res){
@@ -70,16 +87,42 @@ router.get('/callback', function(req, res){
   res.render('redirect');
 });
 
-router.post('/go', function(req, res){
-  // var vehicle = JSON.parse(req.body.Vehicle);
-  var vin = "WBY1Z4C55EV273078";
-  roll(vin, function(best, all){
-    console.log('best POIs', best);
+router.post('/vehicle', function(req, res){
+  console.log(req.body);
+  var resp = req.body;
+  res.send('good to go');
+  db.users.findOne({access_token: resp.user}, function(err, doc){
+    if (!!doc) {
+      if (resp.vehicle[0].VIN != doc.vin) {
+        doc.vin = resp.vehicle[0].VIN;
+        db.users.save(doc);
+      }
+    }
   });
-  res.send('Got it');
 });
 
-function roll(vin, next){
+router.post('/go', function(req, res){
+  var user = req.session.user;
+  var options = {
+    time: req.body.time,
+    adventure: req.body.adventure,
+    money: req.body.money,
+    user: user.access_token
+  };
+  db.users.find({access_token: user.access_token}, function(err, doc){
+    if (!!doc){
+      roll(options, doc.vin, function(best, all){
+        console.log('best POIs', best);
+      });
+      res.send('Got it');
+    } else {
+      res.send('error');
+    }
+  });
+  
+});
+
+function roll(options, vin, next){
   var location, battery;
   var locPromise = new Promise(function(resolve, reject){
     request('http://api.hackthedrive.com/vehicles/'+vin+'/location/', function (error, response, body) {
@@ -101,13 +144,13 @@ function roll(vin, next){
   });
   batPromise.then(function onFullfill(){
     console.log('getting charging stations');
-    chargeStationsFromLatLongRange(location.lat, location.lon, battery.remainingRangeMi, next);
+    chargeStationsFromLatLongRange(options, location.lat, location.lon, battery.remainingRangeMi, next);
   },function onReject(){});
   
   
 }
 
-function chargeStationsFromLatLongRange(Lat, Long, range, next){
+function chargeStationsFromLatLongRange(options, Lat, Long, range, next){
   var xml = sprintf(xmlInput, Math.round(range), Lat, Long);
   var headers = {
     "Content-Length": xml.length,
@@ -134,30 +177,12 @@ function chargeStationsFromLatLongRange(Lat, Long, range, next){
         }
       });
       console.log('viable stations found');
-      // return herePoiFromStations(viable, next);
+      // return herePoiFromStations(options, viable, next);
       next && next({}, {});
     });
 }
 
-function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
-  var R = 6371; // Radius of the earth in km
-  var dLat = deg2rad(lat2-lat1);  // deg2rad below
-  var dLon = deg2rad(lon2-lon1); 
-  var a = 
-  Math.sin(dLat/2) * Math.sin(dLat/2) +
-  Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
-  Math.sin(dLon/2) * Math.sin(dLon/2)
-  ;
-  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  var d = R * c; // Distance in km
-  return d;
-}
-
-function deg2rad(deg) {
-  return deg * (Math.PI/180)
-}
-
-function herePoiFromStations(stations, next){
+function herePoiFromStations(options, stations, next){
   var poi = {
     best: {},
     all: {}
@@ -207,4 +232,27 @@ function herePoiFromStations(stations, next){
   };
 }
 
+
+
+
+
+
 module.exports = router;
+
+function getDistanceFromLatLonInKm(lat1,lon1,lat2,lon2) {
+  var R = 6371; // Radius of the earth in km
+  var dLat = deg2rad(lat2-lat1);  // deg2rad below
+  var dLon = deg2rad(lon2-lon1); 
+  var a = 
+  Math.sin(dLat/2) * Math.sin(dLat/2) +
+  Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) * 
+  Math.sin(dLon/2) * Math.sin(dLon/2)
+  ;
+  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  var d = R * c; // Distance in km
+  return d;
+}
+
+function deg2rad(deg) {
+  return deg * (Math.PI/180)
+}

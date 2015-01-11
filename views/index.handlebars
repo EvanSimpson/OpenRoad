@@ -2,7 +2,7 @@
 <script>
   var user;
   {{#if user}}
-    user = { id: '{{user.id}}' };
+    user = { access_token: '{{user.access_token}}' };
   {{/if}}
   
     var App, BMWClient, buildMap, config, bmw_client;
@@ -19,6 +19,33 @@
     };
     
     bmw_client = new BMWClient(config);
+    fakeAccessToken();
+    
+  function fakeAccessToken(){
+    if(user){
+      console.log(user.access_token);
+      document.location.hash = 'access_token='+user.access_token;
+      bmw_client.token(function(err, result){
+        if (!err){
+          var Vehicle = bmw_client.model("Vehicle"); // Gets a Vehicle model schema.
+          bmw_client.get(Vehicle, {}, function(error, result) {
+            if (error) {
+              console.log(error); // Some error occured.
+            } else {
+              var Vehicles = bmw_client.getResults(Vehicle, result);  // Helper function to get the results.
+              var data = JSON.stringify({'vehicle': Vehicles, 'user': user.access_token.toString()});
+              var request = new XMLHttpRequest();
+              request.open('POST', '/vehicle', true);
+              request.setRequestHeader('Content-Type', 'application/json; charset=UTF-8');
+              request.send(data);
+            }
+          });
+        } else {
+          console.log(err);
+        }
+      });
+    }
+  }
   
   function login(){
     bmw_client.authorize(config.redirect_uri);
