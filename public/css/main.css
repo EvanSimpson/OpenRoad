@@ -247,16 +247,75 @@ input[type=range]:focus::-webkit-slider-runnable-track {
     text-align: center;
 }
 
-/*#load-page {
-    top-margin:200px;
-    color:#bcbcb9;
-    font-size:24pt;
-    align:center;
+
+#loaded-box {
     margin:auto;
     display: block;
-}*/
+    margin-top:260px;
+    color:#ffffff;
+    font-size:24pt;
+    width: 260px;
+    text-align: center;
+}
+
+#arrived {
+    margin:auto;
+    display: block;
+    font-size:24pt;
+    color:#ffffff;
+}
+
+#arrived-message {
+    margin:auto;
+    display: block;
+    font-size:24pt;
+    color:#ffffff;
+    margin-bottom:50px;
+    margin-top: 100px;
+    text-align: center;
+}
+
+#waypoint_image {
+    margin:auto;
+    display: block;
+    margin-bottom:-50px;
+    margin-top: 50px;
+}
+
+.arrbtn {
+    margin:auto;
+    display: block;
+    font-size:20pt;
+    color:#ffffff;
+    width:80%;
+    height:100 px;
+    text-align: center;
+}
 
 
+#review-input {
+    margin:auto;
+    display: block;
+    font-size:20pt;
+    color:#ffffff;
+    height:500 px;
+    width:100%;
+    margin-bottom:50 px;
+}
+
+#arrived-message {
+    margin:auto;
+    display: block;
+    font-size:24pt;
+    color:#ffffff;
+    margin-bottom:50px;
+    margin-top: 100px;
+    text-align: center;
+}
+
+#submit-button {
+    margin-top:50px;
+}
 
 /* ==========================================================================
    Helper classes

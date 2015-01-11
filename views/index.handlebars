@@ -32,8 +32,36 @@
         <p id="text-box">
           Don't forget the sunscreen!
         </p>
+        <p id="loaded-box" style="display: none;">
+            Your i3 is ready.</br>Are you?
+        </p>
+      </div>
+      <div id="arrived" style="display: none;">
+        <p id="arrived-box">
+            <div>
+                <img class="image", id='waypoint_image', src="./images/waypoint.svg", height='200px'></img>
+            </div>
+          <p id="arrived-message">
+            We're here! Time for the next step in the adventure!
+          </p>
+          <div id="top-arrived-button" class="btn btn-success arrbtn">
+            Continue the adventure!
+          </div>
+          </br>
+          <div id="bottom-arrived-button" class="btn btn-danger arrbtn">
+              Enough adventure</br>for one day.
+          </div>
+        </p>
       </div>
       <div id="end-page"  style="display: none;">
+          <p id="arrived-message">
+              What an adventure!
+          </p>
+          <input id="review-input" type="text" value placeholder="Tell us what you thought!">
+          </input>
+          <div id="submit-button" class="btn btn-success arrbtn">
+              A drive well spent.
+          </div>
       </div>
 
       {{else}}
@@ -137,10 +165,17 @@ $("#go").click(function(event) {
   /* stop form from submitting normally */
   event.preventDefault();
 
+  var not_loaded = true;
   var xhr = new XMLHttpRequest();
   xhr.onload = function(e){
       if (xhr.response === 'success'){
-        changeState("end-page");
+          not_loaded = false;
+          setText('Your i3 is ready.\nAre you?');
+          setTimeout(function(){
+              changeState('arrived');
+          }, 1000);
+        //   $("#text-box").fadeToggle(1000);
+        //   $("#loaded-box").fadeToggle(1000);
       }
   }
 
@@ -154,9 +189,10 @@ $("#go").click(function(event) {
   changeState("load-page");
 
   var dt = 2500;
+
   texts.shift();
   setTimeout(function swapText() {
-    if (texts.length) {
+    if (texts.length && not_loaded) {
     //   console.log(texts.shift());
       setText(texts.shift());
       setTimeout(function() {
@@ -180,4 +216,15 @@ function setText(myText){
   });
 }
 
+function gotoend() {
+    changeState("end-page");
+}
+
+$('#bottom-arrived-button').click(function(){
+    gotoend();
+});
+
+// $('#top-arrived-button').click(function(){
+//     gotoend();
+// });
 </script>
