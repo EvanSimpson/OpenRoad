@@ -138,6 +138,11 @@ $("#go").click(function(event) {
   event.preventDefault();
 
   var xhr = new XMLHttpRequest();
+  xhr.onload = function(e){
+      if (xhr.response === 'success'){
+        changeState("end-page");
+      }
+  }
 
   xhr.open("POST", "/go", true);
   xhr.send({

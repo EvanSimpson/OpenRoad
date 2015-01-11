@@ -102,7 +102,9 @@ router.post('/go', function(req, res){
   db.users.findOne({bmw_id: user.bmw_id}, function(err, doc){
     if (!!doc){
       roll(options, doc.vin, function(best, all){
-        console.log('best POIs', best);
+        var bestStation = best[Object.keys(best)[0]]['station'];
+        var bestPoi = 
+        console.log('best station', bestStation);
         
         res.end('success');
       });
@@ -173,7 +175,12 @@ function chargeStationsFromLatLongRange(options, Lat, Long, range, next){
       });
       console.log('viable stations found');
       // return herePoiFromStations(options, viable, next);
-      next && next({}, {});
+      next && next(
+        _.map(viable, function(value, key, list){
+          var ret = {};
+          ret[value.stationID] = {station: value, poi:{}};
+        return ret;
+        }), {});
     });
 }
 
