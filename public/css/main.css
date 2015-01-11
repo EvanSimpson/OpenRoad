@@ -177,6 +177,11 @@ input[type=range]#time::-webkit-slider-runnable-track {
   background-size: 50px 50px;
 }
 
+input[type=range]#adventure::-webkit-slider-runnable-track {
+    background: url("/images/compass.svg") no-repeat center;
+    background-size: 50px 50px;
+}
+
 input[type=range]:focus {
   outline: none;
 }
