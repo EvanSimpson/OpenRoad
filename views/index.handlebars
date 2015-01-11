@@ -74,7 +74,7 @@ function fakeAccessToken(){
     document.location.hash = 'access_token='+user.access_token;
     bmw_client.token(function(err, result){
       if (!err){
-        
+
       } else {
         console.log(err);
       }
@@ -121,8 +121,11 @@ function showVehicles(bc){
 }
 
 var texts = [
-'',
-''
+'I hope you packed sunscreen!',
+'This phone case is waterproof, right?',
+'Have you all had your shots?',
+'Everyody have their passports?',
+'The i3 is ready.\nAre you?'
 ];
 
 var state = "go-page";
@@ -133,30 +136,43 @@ $("#go").click(function(event) {
   console.log('clicked!');
   /* stop form from submitting normally */
   event.preventDefault();
-  
+
   var xhr = new XMLHttpRequest();
-  
+
   xhr.open("POST", "/go", true);
   xhr.send({
     time: $('#time').val(),
     adventure: $('#adventure').val(),
     user: user.bmw_id
   });
-  
+
   changeState("load-page");
+
+  var dt = 2500;
+  texts.shift();
+  setTimeout(function swapText() {
+    if (texts.length) {
+    //   console.log(texts.shift());
+      setText(texts.shift());
+      setTimeout(function() {
+        swapText();
+      }, dt);
+    }
+  }, dt);
 });
 
 function changeState(newState) {
   var from_state = "#" + state;
   var to_state = "#" + newState;
-  $(from_state).fadeToggle(200);
-  $(to_state).fadeToggle(300);
+  $(from_state).fadeToggle(400);
+  $(to_state).fadeToggle(500);
   state = newState;
 }
 
-function cycleText(){
-  
+function setText(myText){
+  $('#text-box').fadeOut(300, function () {
+      $(this).text(myText).fadeIn(300);
+  });
 }
-
 
 </script>
