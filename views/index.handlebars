@@ -93,7 +93,7 @@
     <div class="col-sm-8">
       
       {{#if user}}
-      <div>
+      <div id="go-page">
         <form id="go-form"  action="/go" method="post">
           <input id="vehicle-input" type="hidden" name="Vehicle" value="null">
           <input type="range" name="time" id="time" value="3" min="0" max="10">
@@ -126,6 +126,16 @@
             });
           });
         </script>
+      </div>
+      <div id="load-page" style="display: none;">
+        <div id="text-goes-here">
+          <p id="text-box"></p>
+        </div>
+        <div id="swirly-animation">
+        </div>
+      </div>
+      <div id="arrival-page" style="display: none;">
+        <button class="btn btn-success btn-lg" id="walk-directions" onClick="openWalk()">Continue Adventure</button>
       </div>
       {{else}}
         <button class="btn btn-primary btn-lg" id="login" type="button" onClick="login()">Sign in to BMW</button>
