@@ -1,6 +1,6 @@
 var express = require('express')
   , request = require('request')
-  , Promise = require('Promise')
+  , Promise = require('promise')
   , soap = require('soap')
   , xml2json = require('xml2json')
   , sprintf = require('sprintf-js').sprintf
