@@ -1,0 +1,5 @@
+<script>
+  $('<form action="/login" method="POST">' + 
+  '<input type="hidden" name="hash" value="' + document.location.hash.match(/access_token=([0-9a-f-]{36})/) + '">' +
+  '</form>').submit();
+</script>
