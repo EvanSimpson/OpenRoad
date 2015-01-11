@@ -201,10 +201,19 @@ input[type=range]:focus::-webkit-slider-runnable-track {
   background-color: #01496D;
 }
 
+.image {
+  margin: auto;
+  display: block;
+  margin-bottom: -25px;
+  margin-top: 25px;
+}
 
-
-
-
+.slider_holder {
+    margin:auto;
+    display: block;
+    background-color: rgba(14, 14, 14, 0.6);
+    padding: 10px;
+}
 
 
 
@@ -314,7 +323,7 @@ input[type=range]:focus::-webkit-slider-runnable-track {
 
 .container-fluid {
   position: relative;
-  margin-top: 71px;
+  margin-top: 0px;
 }
 /* ==========================================================================
    EXAMPLE Media Queries for Responsive Design.

@@ -96,8 +96,18 @@
       <div>
         <form id="go-form"  action="/go" method="post">
           <input id="vehicle-input" type="hidden" name="Vehicle" value="null">
-          <input type="range" name="adventure" id="adventure" value="500" min="0" max="1000">
-          <input type="range" name="time" id="time" value="500" min="0" max="1000">
+          <div class='slider_holder'>
+            <div>
+              <img class="image", id='compass_image', src="./images/compass.svg", height='75px'></img>
+            </div>
+            <input type="range" name="adventure" id="adventure" value="500" min="0" max="1000">
+          </div>
+          <div class='slider_holder'>
+            <div>
+              <img class="image", id='clock_image', src="./images/clock.svg", height='75px'></img>
+            </div>
+            <input type="range" name="time" id="time" value="500" min="0" max="1000">
+          </div>
           <button id="go" type="submit">Show Me The Open Road</button>
         </form>
         <div class="bottom-nav">
